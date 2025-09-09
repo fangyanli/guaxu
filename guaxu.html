@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六十四卦随机查询工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'SimSun', '宋体', serif;
+        }
+        body {
+            background-color: #f8f4e9;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #d9c7a6;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #d9c7a6;
+        }
+        h1 {
+            color: #8c3c1b;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .radio-group {
+            display: flex;
+            align-items: center;
+            background: #f1e9d9;
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid #d9c7a6;
+        }
+        .radio-group label {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        button {
+            background: #8c3c1b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #6b2d14;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            table-layout: fixed;
+            overflow:hidden
+        }
+        th, td {
+            border: 1px solid #d9c7a6;
+            text-align: center;
+            padding: 8px 5px;
+        }
+        th {
+            background-color: #e8dcc3;
+            font-weight: bold;
+            padding: 10px 5px;
+        }
+        .corner-header {
+            background-color: #d9c7a6;
+            font-weight: bold;
+        }
+        .gua-cell {
+            cursor: pointer;
+            background: #f8f4e9;
+            transition: all 0.2s;
+            font-size: 16px;
+            height: 70px;
+            position: relative;
+        }
+        .gua-cell:hover {
+            background: #e8dcc3;
+            transform: scale(1.05);
+        }
+        .gua-content {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .gua-number {
+            font-size: 14px;
+            color: #8c3c1b;
+            font-weight: bold;
+        }
+        .gua-name {
+            font-size: 0px;
+            margin: 2px 0;
+        }
+        .gua-fullname {
+            font-size: 16px;
+        }
+        .gua-symbols {
+            display: flex;
+            flex-direction: column;
+            font-size: 28px;
+            line-height: 1;
+            margin-top: 3px;
+            margin-right: 8px;
+        }
+        .detail-panel {
+            background: #f1e9d9;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #d9c7a6;
+            margin-top: 20px;
+        }
+        .detail-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: center;
+            justify-content: center;
+        }
+        .gua-image {
+            width: 200px;
+            height: 200px;
+            background: #fff;
+            border: 2px solid #8c3c1b;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            padding: 15px;
+        }
+        .gua-symbols-large {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            line-height: 1;
+            margin: 10px 0;
+        }
+        .gua-info-large{
+            display: flex;
+            flex-direction: column;
+            
+            font-size: 42px;
+            text-align: center;
+        }
+        .gua-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        .gua-title {
+            color: #8c3c1b;
+            font-size: 24px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d9c7a6;
+        }
+        .gua-desc {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        .hidden {
+            display: none;
+        }
+        .active-cell {
+            background-color: #e8dcc3 !important;
+            box-shadow: 0 0 10px rgba(140, 60, 27, 0.3);
+        }
+        @media (max-width: 768px) {
+            th, td {
+                padding: 6px 2px;
+            }
+            .gua-cell {
+                height: 60px;
+            }
+            .gua-number {
+                font-size: 12px;
+            }
+            .gua-name {
+                font-size: 14px;
+            }
+            .gua-fullname {
+                font-size: 10px;
+            }
+            .gua-symbols {
+                font-size: 16px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>六十四卦随机查询工具</h1>
+            <p>选择显示模式，点击卦象查看详细信息</p>
+        </header>
+
+        <div class="controls">
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="displayMode" value="number" checked> 数字显示
+                </label>
+                <label>
+                    <input type="radio" name="displayMode" value="name"> 卦名显示
+                </label>
+                <label>
+                    <input type="radio" name="displayMode" value="symbol"> 卦相显示
+                </label>
+            </div>
+            <button id="shuffleBtn">重新打乱卦序</button>
+            <button id="sortBtn">按卦序排序</button>
+            <button id="randomBtn">随机查看一卦</button>
+        </div>
+
+        <div class="table-container">
+            <table id="guaTable">
+                <!-- JavaScript将在这里生成表格 -->
+            </table>
+        </div>
+
+        <div class="detail-panel hidden" id="detailPanel">
+            <div class="detail-content">
+                <div class="gua-image" id="guaImage">
+                    <!-- 卦象图将在这里显示 -->
+                </div>
+                <div class="gua-info">
+                    <h2 class="gua-title" id="guaTitle">卦象信息</h2>
+                    <div class="gua-desc" id="guaDescription">
+                        <!-- 卦象描述将在这里显示 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 完整的六十四卦数据（包含卦象符号）
+        const guaData = [
+            { number: 1, name: "乾", symbol: "天", fullName: "乾为天", description: "乾卦象征天，天的特性是强健，代表创造、主动、刚强。", symbolChars: "☰", upperSymbol: "☰", lowerSymbol: "☰" },
+            { number: 2, name: "坤", symbol: "地", fullName: "坤为地", description: "坤卦象征地，地的特性是顺承，代表接受、包容、柔顺。", symbolChars: "☷", upperSymbol: "☷", lowerSymbol: "☷" },
+            { number: 3, name: "屯", symbol: "水雷", fullName: "水雷屯", description: "屯卦象征初生，代表万物始生、充满艰难。", symbolChars: "☵☳", upperSymbol: "☵", lowerSymbol: "☳" },
+            { number: 4, name: "蒙", symbol: "山水", fullName: "山水蒙", description: "蒙卦象征蒙昧，代表启蒙、教育、开发智慧。", symbolChars: "☶☵", upperSymbol: "☶", lowerSymbol: "☵" },
+            { number: 5, name: "需", symbol: "水天", fullName: "水天需", description: "需卦象征等待，代表需要、期待、耐心等待时机。", symbolChars: "☵☰", upperSymbol: "☵", lowerSymbol: "☰" },
+            { number: 6, name: "讼", symbol: "天水", fullName: "天水讼", description: "讼卦象征争讼，代表争论、冲突、诉讼。", symbolChars: "☰☵", upperSymbol: "☰", lowerSymbol: "☵" },
+            { number: 7, name: "师", symbol: "地水", fullName: "地水师", description: "师卦象征军队，代表战争、集体行动、用兵。", symbolChars: "☷☵", upperSymbol: "☷", lowerSymbol: "☵" },
+            { number: 8, name: "比", symbol: "水地", fullName: "水地比", description: "比卦象征亲附，代表亲密、辅助、团结。", symbolChars: "☵☷", upperSymbol: "☵", lowerSymbol: "☷" },
+            { number: 9, name: "小畜", symbol: "风天", fullName: "风天小畜", description: "小畜卦象征微小的蓄积，代表准备、积蓄力量。", symbolChars: "☴☰", upperSymbol: "☴", lowerSymbol: "☰" },
+            { number: 10, name: "履", symbol: "天泽", fullName: "天泽履", description: "履卦象征履行、实践，代表谨慎行动、履行责任。", symbolChars: "☰☱", upperSymbol: "☰", lowerSymbol: "☱" },
+            { number: 11, name: "泰", symbol: "地天", fullName: "地天泰", description: "泰卦象征通达，代表顺利、和谐、天地交泰。", symbolChars: "☷☰", upperSymbol: "☷", lowerSymbol: "☰" },
+            { number: 12, name: "否", symbol: "天地", fullName: "天地否", description: "否卦象征阻塞，代表困难、隔阂、天地不交。", symbolChars: "☰☷", upperSymbol: "☰", lowerSymbol: "☷" },
+            { number: 13, name: "同人", symbol: "天火", fullName: "天火同人", description: "同人卦象征与人协同，代表合作、团结、人际关系。", symbolChars: "☰☲", upperSymbol: "☰", lowerSymbol: "☲" },
+            { number: 14, name: "大有", symbol: "火天", fullName: "火天大有", description: "大有卦象征大有收获，代表丰富、成功、拥有众多。", symbolChars: "☲☰", upperSymbol: "☲", lowerSymbol: "☰" },
+            { number: 15, name: "谦", symbol: "地山", fullName: "地山谦", description: "谦卦象征谦虚，代表谦逊、低调、不自满。", symbolChars: "☷☶", upperSymbol: "☷", lowerSymbol: "☶" },
+            { number: 16, name: "豫", symbol: "雷地", fullName: "雷地豫", description: "豫卦象征愉悦，代表快乐、安逸、预备。", symbolChars: "☳☷", upperSymbol: "☳", lowerSymbol: "☷" },
+            { number: 17, name: "随", symbol: "泽雷", fullName: "泽雷随", description: "随卦象征随从，代表跟随、顺从、适应。", symbolChars: "☱☳", upperSymbol: "☱", lowerSymbol: "☳" },
+            { number: 18, name: "蛊", symbol: "山风", fullName: "山风蛊", description: "蛊卦象征弊病，代表腐败、整顿、改革。", symbolChars: "☶☴", upperSymbol: "☶", lowerSymbol: "☴" },
+            { number: 19, name: "临", symbol: "地泽", fullName: "地泽临", description: "临卦象征监临，代表监督、降临、视察。", symbolChars: "☷☱", upperSymbol: "☷", lowerSymbol: "☱" },
+            { number: 20, name: "观", symbol: "风地", fullName: "风地观", description: "观卦象征观看，代表观察、展示、瞻仰。", symbolChars: "☴☷", upperSymbol: "☴", lowerSymbol: "☷" },
+            { number: 21, name: "噬嗑", symbol: "火雷", fullName: "火雷噬嗑", description: "噬嗑卦象征咬合，代表刑罚、排除障碍、咬合。", symbolChars: "☲☳", upperSymbol: "☲", lowerSymbol: "☳" },
+            { number: 22, name: "贲", symbol: "山火", fullName: "山火贲", description: "贲卦象征文饰，代表装饰、美化、礼仪。", symbolChars: "☶☲", upperSymbol: "☶", lowerSymbol: "☲" },
+            { number: 23, name: "剥", symbol: "山地", fullName: "山地剥", description: "剥卦象征剥落，代表衰落、剥蚀、削减。", symbolChars: "☶☷", upperSymbol: "☶", lowerSymbol: "☷" },
+            { number: 24, name: "复", symbol: "地雷", fullName: "地雷复", description: "复卦象征回复，代表回归、复兴、循环。", symbolChars: "☷☳", upperSymbol: "☷", lowerSymbol: "☳" },
+            { number: 25, name: "无妄", symbol: "天雷", fullName: "天雷无妄", description: "无妄卦象征不妄为，代表实事求是、不虚伪。", symbolChars: "☰☳", upperSymbol: "☰", lowerSymbol: "☳" },
+            { number: 26, name: "大畜", symbol: "山天", fullName: "山天大畜", description: "大畜卦象征大量的蓄积，代表积蓄、暂停、准备大行动。", symbolChars: "☶☰", upperSymbol: "☶", lowerSymbol: "☰" },
+            { number: 27, name: "颐", symbol: "山雷", fullName: "山雷颐", description: "颐卦象征颐养，代表养育、修养、自食其力。", symbolChars: "☶☳", upperSymbol: "☶", lowerSymbol: "☳" },
+            { number: 28, name: "大过", symbol: "泽风", fullName: "泽风大过", description: "大过卦象征过度，代表过分、危机、非常行动。", symbolChars: "☱☴", upperSymbol: "☱", lowerSymbol: "☴" },
+            { number: 29, name: "坎", symbol: "水", fullName: "坎为水", description: "坎卦象征水，水的特性是险陷，代表危险、困难、深渊。", symbolChars: "☵", upperSymbol: "☵", lowerSymbol: "☵" },
+            { number: 30, name: "离", symbol: "火", fullName: "离为火", description: "离卦象征火，火的特性是附丽，代表光明、美丽、依附。", symbolChars: "☲", upperSymbol: "☲", lowerSymbol: "☲" },
+            { number: 31, name: "咸", symbol: "泽山", fullName: "泽山咸", description: "咸卦感应，代表相互感应、感情、沟通。", symbolChars: "☱☶", upperSymbol: "☱", lowerSymbol: "☶" },
+            { number: 32, name: "恒", symbol: "雷风", fullName: "雷风恒", description: "恒卦象征恒久，代表持久、稳定、不变。", symbolChars: "☳☴", upperSymbol: "☳", lowerSymbol: "☴" },
+            { number: 33, name: "遁", symbol: "天山", fullName: "天山遁", description: "遁卦象征退避，代表隐退、逃避、退让。", symbolChars: "☰☶", upperSymbol: "☰", lowerSymbol: "☶" },
+            { number: 34, name: "大壮", symbol: "雷天", fullName: "雷天大壮", description: "大壮卦象征强大，代表强盛、进取、过度强壮。", symbolChars: "☳☰", upperSymbol: "☳", lowerSymbol: "☰" },
+            { number: 35, name: "晋", symbol: "火地", fullName: "火地晋", description: "晋卦象征前进，代表晋升、进展、光明。", symbolChars: "☲☷", upperSymbol: "☲", lowerSymbol: "☷" },
+            { number: 36, name: "明夷", symbol: "地火", fullName: "地火明夷", description: "明夷卦象征光明受伤，代表黑暗、困难、隐藏。", symbolChars: "☷☲", upperSymbol: "☷", lowerSymbol: "☲" },
+            { number: 37, name: "家人", symbol: "风火", fullName: "风火家人", description: "家人卦象征家庭，代表家庭关系、和谐、内部事务。", symbolChars: "☴☲", upperSymbol: "☴", lowerSymbol: "☲" },
+            { number: 38, name: "睽", symbol: "火泽", fullName: "火泽睽", description: "睽卦象征乖离，代表分离、对立、极端的差异。", symbolChars: "☲☱", upperSymbol: "☲", lowerSymbol: "☱" },
+            { number: 39, name: "蹇", symbol: "水山", fullName: "水山蹇", description: "蹇卦象征艰难，代表困难、阻碍、险阻。", symbolChars: "☵☶", upperSymbol: "☵", lowerSymbol: "☶" },
+            { number: 40, name: "解", symbol: "雷水", fullName: "雷水解", description: "解卦象征解除，代表解脱、解决、释放。", symbolChars: "☳☵", upperSymbol: "☳", lowerSymbol: "☵" },
+            { number: 41, name: "损", symbol: "山泽", fullName: "山泽损", description: "损卦象征减损，代表损失、减少、牺牲。", symbolChars: "☶☱", upperSymbol: "☶", lowerSymbol: "☱" },
+            { number: 42, name: "益", symbol: "风雷", fullName: "风雷益", description: "益卦象征增益，代表增加、收益、有利。", symbolChars: "☴☳", upperSymbol: "☴", lowerSymbol: "☳" },
+            { number: 43, name: "夬", symbol: "泽天", fullName: "泽天夬", description: "夬卦象征决断，代表决定、分裂、果断行动。", symbolChars: "☱☰", upperSymbol: "☱", lowerSymbol: "☰" },
+            { number: 44, name: "姤", symbol: "天风", fullName: "天风姤", description: "姤卦象征相遇，代表邂逅、相遇、不期而遇。", symbolChars: "☰☴", upperSymbol: "☰", lowerSymbol: "☴" },
+            { number: 45, name: "萃", symbol: "泽地", fullName: "泽地萃", description: "萃卦象征聚集，代表聚集、汇集、团结。", symbolChars: "☱☷", upperSymbol: "☱", lowerSymbol: "☷" },
+            { number: 46, name: "升", symbol: "地风", fullName: "地风升", description: "升卦象征上升，代表晋升、进步、向上发展。", symbolChars: "☷☴", upperSymbol: "☷", lowerSymbol: "☴" },
+            { number: 47, name: "困", symbol: "泽水", fullName: "泽水困", description: "困卦象征困穷，代表困境、受限制、艰难。", symbolChars: "☱☵", upperSymbol: "☱", lowerSymbol: "☵" },
+            { number: 48, name: "井", symbol: "水风", fullName: "水风井", description: "井卦象征水井，代表滋养、不变、秩序。", symbolChars: "☵☴", upperSymbol: "☵", lowerSymbol: "☴" },
+            { number: 49, name: "革", symbol: "泽火", fullName: "泽火革", description: "革卦象征变革，代表改革、革命、改变。", symbolChars: "☱☲", upperSymbol: "☱", lowerSymbol: "☲" },
+            { number: 50, name: "鼎", symbol: "火风", fullName: "火风鼎", description: "鼎卦象征鼎器，代表稳定、权力、更新。", symbolChars: "☲☴", upperSymbol: "☲", lowerSymbol: "☴" },
+            { number: 51, name: "震", symbol: "雷", fullName: "震为雷", description: "震卦象征雷，雷的特性是震动，代表行动、振奋、启动。", symbolChars: "☳", upperSymbol: "☳", lowerSymbol: "☳" },
+            { number: 52, name: "艮", symbol: "山", fullName: "艮为山", description: "艮卦象征山，山的特性是停止，代表静止、稳定、阻碍。", symbolChars: "☶", upperSymbol: "☶", lowerSymbol: "☶" },
+            { number: 53, name: "渐", symbol: "风山", fullName: "风山渐", description: "渐卦象征渐进，代表逐步进展、缓慢前进。", symbolChars: "☴☶", upperSymbol: "☴", lowerSymbol: "☶" },
+            { number: 54, name: "归妹", symbol: "雷泽", fullName: "雷泽归妹", description: "归妹卦象征嫁妹，代表婚姻、结合、非正式关系。", symbolChars: "☳☱", upperSymbol: "☳", lowerSymbol: "☱" },
+            { number: 55, name: "丰", symbol: "雷火", fullName: "雷火丰", description: "丰卦象征丰盛，代表盛大、充足、光明。", symbolChars: "☳☲", upperSymbol: "☳", lowerSymbol: "☲" },
+            { number: 56, name: "旅", symbol: "火山", fullName: "火山旅", description: "旅卦象征旅行，代表行旅、不安定、客居。", symbolChars: "☲☶", upperSymbol: "☲", lowerSymbol: "☶" },
+            { number: 57, name: "巽", symbol: "风", fullName: "巽为风", description: "巽卦象征风，风的特性是顺从，代表进入、柔顺、渗透。", symbolChars: "☴", upperSymbol: "☴", lowerSymbol: "☴" },
+            { number: 58, name: "兑", symbol: "泽", fullName: "兑为泽", description: "兑卦象征泽，泽的特性是喜悦，代表愉悦、沟通、表达。", symbolChars: "☱", upperSymbol: "☱", lowerSymbol: "☱" },
+            { number: 59, name: "涣", symbol: "风水", fullName: "风水涣", description: "涣卦象征涣散，代表分散、解散、释放。", symbolChars: "☴☵", upperSymbol: "☴", lowerSymbol: "☵" },
+            { number: 60, name: "节", symbol: "水泽", fullName: "水泽节", description: "节卦象征节制，代表限制、节约、调节。", symbolChars: "☵☱", upperSymbol: "☵", lowerSymbol: "☱" },
+            { number: 61, name: "中孚", symbol: "风泽", fullName: "风泽中孚", description: "中孚卦象征中心诚信，代表诚信、信心、内在真实。", symbolChars: "☴☱", upperSymbol: "☴", lowerSymbol: "☱" },
+            { number: 62, name: "小过", symbol: "雷山", fullName: "雷山小过", description: "小过卦象征稍有过度，代表小过失、稍微过度。", symbolChars: "☳☶", upperSymbol: "☳", lowerSymbol: "☶" },
+            { number: 63, name: "既济", symbol: "水火", fullName: "水火既济", description: "既济卦象征已完成，代表成功、完成、安定。", symbolChars: "☵☲", upperSymbol: "☵", lowerSymbol: "☲" },
+            { number: 64, name: "未济", symbol: "火水", fullName: "火水未济", description: "未济卦象征未完成，代表未完成、继续、循环。", symbolChars: "☲☵", upperSymbol: "☲", lowerSymbol: "☵" }
+        ];
+        const guaData2 = [
+            { "number": 1, "name": "乾", "symbol": "天", "fullName": "乾为天", "description": "乾卦象征天，天的特性是强健，代表创造、主动、刚强。", "symbolChars": "☰", "upperSymbol": "☰", "lowerSymbol": "☰" },
+            { "number": 43, "name": "夬", "symbol": "泽天", "fullName": "泽天夬", "description": "夬卦象征决断，代表果断、清除小人、做出决定。", "symbolChars": "☱☰", "upperSymbol": "☱", "lowerSymbol": "☰" },
+            { "number": 14, "name": "大有", "symbol": "火天", "fullName": "火天大有", "description": "大有卦象征大有收获，代表丰富、成功、拥有众多。", "symbolChars": "☲☰", "upperSymbol": "☲", "lowerSymbol": "☰" },
+            { "number": 34, "name": "大壮", "symbol": "雷天", "fullName": "雷天大壮", "description": "大壮卦象征强大，代表强盛、进取、过度强壮。", "symbolChars": "☳☰", "upperSymbol": "☳", "lowerSymbol": "☰" },
+            { "number": 9, "name": "小畜", "symbol": "风天", "fullName": "风天小畜", "description": "小畜卦象征微小的蓄积，代表准备、积蓄力量。", "symbolChars": "☴☰", "upperSymbol": "☴", "lowerSymbol": "☰" },
+            { "number": 5, "name": "需", "symbol": "水天", "fullName": "水天需", "description": "需卦象征等待，代表需要、期待、耐心等待时机。", "symbolChars": "☵☰", "upperSymbol": "☵", "lowerSymbol": "☰" },
+            { "number": 26, "name": "大畜", "symbol": "山天", "fullName": "山天大畜", "description": "大畜卦象征大量的蓄积，代表积蓄、暂停、准备大行动。", "symbolChars": "☶☰", "upperSymbol": "☶", "lowerSymbol": "☰" },
+            { "number": 11, "name": "泰", "symbol": "地天", "fullName": "地天泰", "description": "泰卦象征通达，代表顺利、和谐、天地交泰。", "symbolChars": "☷☰", "upperSymbol": "☷", "lowerSymbol": "☰" },
+            { "number": 10, "name": "履", "symbol": "天泽", "fullName": "天泽履", "description": "履卦象征履行、实践，代表谨慎行动、履行责任。", "symbolChars": "☰☱", "upperSymbol": "☰", "lowerSymbol": "☱" },
+            { "number": 58, "name": "兑", "symbol": "泽", "fullName": "兑为泽", "description": "兑卦象征泽，泽的特性是喜悦，代表愉悦、沟通、表达。", "symbolChars": "☱", "upperSymbol": "☱", "lowerSymbol": "☱" },
+            { "number": 38, "name": "睽", "symbol": "火泽", "fullName": "火泽睽", "description": "睽卦象征乖离，代表分离、对立、极端的差异。", "symbolChars": "☲☱", "upperSymbol": "☲", "lowerSymbol": "☱" },
+            { "number": 54, "name": "归妹", "symbol": "雷泽", "fullName": "雷泽归妹", "description": "归妹卦象征嫁妹，代表婚姻、结合、非正式关系。", "symbolChars": "☳☱", "upperSymbol": "☳", "lowerSymbol": "☱" },
+            { "number": 61, "name": "中孚", "symbol": "风泽", "fullName": "风泽中孚", "description": "中孚卦象征中心诚信，代表诚信、信心、内在真实。", "symbolChars": "☴☱", "upperSymbol": "☴", "lowerSymbol": "☱" },
+            { "number": 60, "name": "节", "symbol": "水泽", "fullName": "水泽节", "description": "节卦象征节制，代表限制、节约、调节。", "symbolChars": "☵☱", "upperSymbol": "☵", "lowerSymbol": "☱" },
+            { "number": 41, "name": "损", "symbol": "山泽", "fullName": "山泽损", "description": "损卦象征减损，代表损失、减少、牺牲。", "symbolChars": "☶☱", "upperSymbol": "☶", "lowerSymbol": "☱" },
+            { "number": 19, "name": "临", "symbol": "地泽", "fullName": "地泽临", "description": "临卦象征监临，代表监督、降临、视察。", "symbolChars": "☷☱", "upperSymbol": "☷", "lowerSymbol": "☱" },
+            { "number": 13, "name": "同人", "symbol": "天火", "fullName": "天火同人", "description": "同人卦象征与人协同，代表合作、团结、人际关系。", "symbolChars": "☰☲", "upperSymbol": "☰", "lowerSymbol": "☲" },
+            { "number": 49, "name": "革", "symbol": "泽火", "fullName": "泽火革", "description": "革卦象征变革，代表改革、革命、改变。", "symbolChars": "☱☲", "upperSymbol": "☱", "lowerSymbol": "☲" },
+            { "number": 30, "name": "离", "symbol": "火", "fullName": "离为火", "description": "离卦象征火，火的特性是附丽，代表光明、美丽、依附。", "symbolChars": "☲", "upperSymbol": "☲", "lowerSymbol": "☲" },
+            { "number": 55, "name": "丰", "symbol": "雷火", "fullName": "雷火丰", "description": "丰卦象征丰盛，代表盛大、充足、光明。", "symbolChars": "☳☲", "upperSymbol": "☳", "lowerSymbol": "☲" },
+            { "number": 37, "name": "家人", "symbol": "风火", "fullName": "风火家人", "description": "家人卦象征家庭，代表家庭关系、和谐、内部事务。", "symbolChars": "☴☲", "upperSymbol": "☴", "lowerSymbol": "☲" },
+            { "number": 63, "name": "既济", "symbol": "水火", "fullName": "水火既济", "description": "既济卦象征已完成，代表成功、完成、安定。", "symbolChars": "☵☲", "upperSymbol": "☵", "lowerSymbol": "☲" },
+            { "number": 22, "name": "贲", "symbol": "山火", "fullName": "山火贲", "description": "贲卦象征文饰，代表装饰、美化、礼仪。", "symbolChars": "☶☲", "upperSymbol": "☶", "lowerSymbol": "☲" },
+            { "number": 36, "name": "明夷", "symbol": "地火", "fullName": "地火明夷", "description": "明夷卦象征光明受伤，代表黑暗、困难、隐藏。", "symbolChars": "☷☲", "upperSymbol": "☷", "lowerSymbol": "☲" },
+            { "number": 25, "name": "无妄", "symbol": "天雷", "fullName": "天雷无妄", "description": "无妄卦象征不妄为，代表实事求是、不虚伪。", "symbolChars": "☰☳", "upperSymbol": "☰", "lowerSymbol": "☳" },
+            { "number": 17, "name": "随", "symbol": "泽雷", "fullName": "泽雷随", "description": "随卦象征随从，代表跟随、顺从、适应。", "symbolChars": "☱☳", "upperSymbol": "☱", "lowerSymbol": "☳" },
+            { "number": 21, "name": "噬嗑", "symbol": "火雷", "fullName": "火雷噬嗑", "description": "噬嗑卦象征咬合，代表刑罚、排除障碍、咬合。", "symbolChars": "☲☳", "upperSymbol": "☲", "lowerSymbol": "☳" },
+            { "number": 51, "name": "震", "symbol": "雷", "fullName": "震为雷", "description": "震卦象征雷，雷的特性是震动，代表行动、振奋、启动。", "symbolChars": "☳", "upperSymbol": "☳", "lowerSymbol": "☳" },
+            { "number": 42, "name": "益", "symbol": "风雷", "fullName": "风雷益", "description": "益卦象征增益，代表增加、收益、有利。", "symbolChars": "☴☳", "upperSymbol": "☴", "lowerSymbol": "☳" },
+            { "number": 3, "name": "屯", "symbol": "水雷", "fullName": "水雷屯", "description": "屯卦象征初生，代表万物始生、充满艰难。", "symbolChars": "☵☳", "upperSymbol": "☵", "lowerSymbol": "☳" },
+            { "number": 27, "name": "颐", "symbol": "山雷", "fullName": "山雷颐", "description": "颐卦象征颐养，代表养育、修养、自食其力。", "symbolChars": "☶☳", "upperSymbol": "☶", "lowerSymbol": "☳" },
+            { "number": 24, "name": "复", "symbol": "地雷", "fullName": "地雷复", "description": "复卦象征回复，代表回归、复兴、循环。", "symbolChars": "☷☳", "upperSymbol": "☷", "lowerSymbol": "☳" },
+            { "number": 44, "name": "姤", "symbol": "天风", "fullName": "天风姤", "description": "姤卦象征相遇，代表邂逅、相遇、不期而遇。", "symbolChars": "☰☴", "upperSymbol": "☰", "lowerSymbol": "☴" },
+            { "number": 28, "name": "大过", "symbol": "泽风", "fullName": "泽风大过", "description": "大过卦象征过度，代表过分、危机、非常行动。", "symbolChars": "☱☴", "upperSymbol": "☱", "lowerSymbol": "☴" },
+            { "number": 50, "name": "鼎", "symbol": "火风", "fullName": "火风鼎", "description": "鼎卦象征鼎器，代表稳定、权力、更新。", "symbolChars": "☲☴", "upperSymbol": "☲", "lowerSymbol": "☴" },
+            { "number": 32, "name": "恒", "symbol": "雷风", "fullName": "雷风恒", "description": "恒卦象征恒久，代表持久、稳定、不变。", "symbolChars": "☳☴", "upperSymbol": "☳", "lowerSymbol": "☴" },
+            { "number": 57, "name": "巽", "symbol": "风", "fullName": "巽为风", "description": "巽卦象征风，风的特性是顺从，代表进入、柔顺、渗透。", "symbolChars": "☴", "upperSymbol": "☴", "lowerSymbol": "☴" },
+            { "number": 48, "name": "井", "symbol": "水风", "fullName": "水风井", "description": "井卦象征水井，代表滋养、不变、秩序。", "symbolChars": "☵☴", "upperSymbol": "☵", "lowerSymbol": "☴" },
+            { "number": 18, "name": "蛊", "symbol": "山风", "fullName": "山风蛊", "description": "蛊卦象征弊病，代表腐败、整顿、改革。", "symbolChars": "☶☴", "upperSymbol": "☶", "lowerSymbol": "☴" },
+            { "number": 46, "name": "升", "symbol": "地风", "fullName": "地风升", "description": "升卦象征上升，代表晋升、进步、向上发展。", "symbolChars": "☷☴", "upperSymbol": "☷", "lowerSymbol": "☴" },
+            { "number": 6, "name": "讼", "symbol": "天水", "fullName": "天水讼", "description": "讼卦象征争讼，代表争论、冲突、诉讼。", "symbolChars": "☰☵", "upperSymbol": "☰", "lowerSymbol": "☵" },
+            { "number": 47, "name": "困", "symbol": "泽水", "fullName": "泽水困", "description": "困卦象征困穷，代表困境、受限制、艰难。", "symbolChars": "☱☵", "upperSymbol": "☱", "lowerSymbol": "☵" },
+            { "number": 64, "name": "未济", "symbol": "火水", "fullName": "火水未济", "description": "未济卦象征未完成，代表未完成、继续、循环。", "symbolChars": "☲☵", "upperSymbol": "☲", "lowerSymbol": "☵" },
+            { "number": 40, "name": "解", "symbol": "雷水", "fullName": "雷水解", "description": "解卦象征解除，代表解脱、解决、释放。", "symbolChars": "☳☵", "upperSymbol": "☳", "lowerSymbol": "☵" },
+            { "number": 59, "name": "涣", "symbol": "风水", "fullName": "风水涣", "description": "涣卦象征涣散，代表分散、解散、释放。", "symbolChars": "☴☵", "upperSymbol": "☴", "lowerSymbol": "☵" },
+            { "number": 29, "name": "坎", "symbol": "水", "fullName": "坎为水", "description": "坎卦象征水，水的特性是险陷，代表危险、困难、深渊。", "symbolChars": "☵", "upperSymbol": "☵", "lowerSymbol": "☵" },
+            { "number": 4, "name": "蒙", "symbol": "山水", "fullName": "山水蒙", "description": "蒙卦象征蒙昧，代表启蒙、教育、开发智慧。", "symbolChars": "☶☵", "upperSymbol": "☶", "lowerSymbol": "☵" },
+            { "number": 7, "name": "师", "symbol": "地水", "fullName": "地水师", "description": "师卦象征军队，代表战争、集体行动、用兵。", "symbolChars": "☷☵", "upperSymbol": "☷", "lowerSymbol": "☵" },
+            { "number": 33, "name": "遁", "symbol": "天山", "fullName": "天山遁", "description": "遁卦象征退避，代表隐退、逃避、退让。", "symbolChars": "☰☶", "upperSymbol": "☰", "lowerSymbol": "☶" },
+            { "number": 31, "name": "咸", "symbol": "泽山", "fullName": "泽山咸", "description": "咸卦感应，代表相互感应、感情、沟通。", "symbolChars": "☱☶", "upperSymbol": "☱", "lowerSymbol": "☶" },
+            { "number": 56, "name": "旅", "symbol": "火山", "fullName": "火山旅", "description": "旅卦象征旅行，代表行旅、不安定、客居。", "symbolChars": "☲☶", "upperSymbol": "☲", "lowerSymbol": "☶" },
+            { "number": 62, "name": "小过", "symbol": "雷山", "fullName": "雷山小过", "description": "小过卦象征稍有过度，代表小过失、稍微过度。", "symbolChars": "☳☶", "upperSymbol": "☳", "lowerSymbol": "☶" },
+            { "number": 53, "name": "渐", "symbol": "风山", "fullName": "风山渐", "description": "渐卦象征渐进，代表逐步进展、缓慢前进。", "symbolChars": "☴☶", "upperSymbol": "☴", "lowerSymbol": "☶" },
+            { "number": 39, "name": "蹇", "symbol": "水山", "fullName": "水山蹇", "description": "蹇卦象征艰难，代表困难、阻碍、险阻。", "symbolChars": "☵☶", "upperSymbol": "☵", "lowerSymbol": "☶" },
+            { "number": 52, "name": "艮", "symbol": "山", "fullName": "艮为山", "description": "艮卦象征山，山的特性是停止，代表静止、稳定、阻碍。", "symbolChars": "☶", "upperSymbol": "☶", "lowerSymbol": "☶" },
+            { "number": 15, "name": "谦", "symbol": "地山", "fullName": "地山谦", "description": "谦卦象征谦虚，代表谦逊、低调、不自满。", "symbolChars": "☷☶", "upperSymbol": "☷", "lowerSymbol": "☶" },
+            { "number": 12, "name": "否", "symbol": "天地", "fullName": "天地否", "description": "否卦象征阻塞，代表困难、隔阂、天地不交。", "symbolChars": "☰☷", "upperSymbol": "☰", "lowerSymbol": "☷" },
+            { "number": 45, "name": "萃", "symbol": "泽地", "fullName": "泽地萃", "description": "萃卦象征聚集，代表聚集、汇集、团结。", "symbolChars": "☱☷", "upperSymbol": "☱", "lowerSymbol": "☷" },
+            { "number": 35, "name": "晋", "symbol": "火地", "fullName": "火地晋", "description": "晋卦象征前进，代表晋升、进展、光明。", "symbolChars": "☲☷", "upperSymbol": "☲", "lowerSymbol": "☷" },
+            { "number": 16, "name": "豫", "symbol": "雷地", "fullName": "雷地豫", "description": "豫卦象征愉悦，代表快乐、安逸、预备。", "symbolChars": "☳☷", "upperSymbol": "☳", "lowerSymbol": "☷" },
+            { "number": 20, "name": "观", "symbol": "风地", "fullName": "风地观", "description": "观卦象征观看，代表观察、展示、瞻仰。", "symbolChars": "☴☷", "upperSymbol": "☴", "lowerSymbol": "☷" },
+            { "number": 8, "name": "比", "symbol": "水地", "fullName": "水地比", "description": "比卦象征亲附，代表亲密、辅助、团结。", "symbolChars": "☵☷", "upperSymbol": "☵", "lowerSymbol": "☷" },
+            { "number": 23, "name": "剥", "symbol": "山地", "fullName": "山地剥", "description": "剥卦象征剥落，代表衰落、剥蚀、削减。", "symbolChars": "☶☷", "upperSymbol": "☶", "lowerSymbol": "☷" },
+            { "number": 2, "name": "坤", "symbol": "地", "fullName": "坤为地", "description": "坤卦象征地，地的特性是顺承，代表接受、包容、柔顺。", "symbolChars": "☷", "upperSymbol": "☷", "lowerSymbol": "☷" }
+        ]
+        // 上卦和下卦的顺序
+        const upperGua = ["1☰乾(天)", "2☱兑(泽)", "3☲离(火)", "4☳震(雷)", "5☴巽(风)", "6☵坎(水)", "7☶艮(山)", "8☷坤(地)"];
+        const lowerGua = ["1☰乾(天)", "2☱兑(泽)", "3☲离(火)", "4☳震(雷)", "5☴巽(风)", "6☵坎(水)", "7☶艮(山)", "8☷坤(地)"];
+
+        let currentDisplayMode = 'number';
+        let activeCell = null;
+
+        // 初始化表格
+        function initTable() {
+            const table = document.getElementById('guaTable');
+            table.innerHTML = '';
+            
+            // 创建表头行
+            const headerRow = document.createElement('tr');
+            
+            // 添加左上角空白单元格
+            const cornerHeader = document.createElement('th');
+            cornerHeader.className = 'corner-header';
+            cornerHeader.textContent = '上卦/下卦';
+            headerRow.appendChild(cornerHeader);
+            
+            // 添加上卦表头
+            for (let i = 0; i < 8; i++) {
+                const th = document.createElement('th');
+                th.textContent = upperGua[i];
+                headerRow.appendChild(th);
+            }
+            
+            table.appendChild(headerRow);
+            
+            // 创建表格内容
+            let shuffledData = shuffleArray([...guaData]);
+            let dataIndex = 0;
+            
+            for (let i = 0; i < 8; i++) {
+                const row = document.createElement('tr');
+                
+                // 添加左侧下卦表头
+                const lowerHeader = document.createElement('th');
+                lowerHeader.textContent = lowerGua[i];
+                row.appendChild(lowerHeader);
+                
+                // 添加卦象单元格
+                for (let j = 0; j < 8; j++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'gua-cell';
+                    
+                    const gua = shuffledData[dataIndex++];
+                    
+                    cell.dataset.number = gua.number;
+                    cell.dataset.name = gua.name;
+                    cell.dataset.symbol = gua.symbol;
+                    cell.dataset.fullName = gua.fullName;
+                    cell.dataset.description = gua.description;
+                    cell.dataset.symbolChars = gua.symbolChars;
+                    cell.dataset.upperSymbol = gua.upperSymbol;
+                    cell.dataset.lowerSymbol = gua.lowerSymbol;
+                    cell.dataset.displayMode = currentDisplayMode;
+                    
+                    cell.addEventListener('click', () => handleCellClick(cell, gua));
+                    
+                    row.appendChild(cell);
+                }
+                
+                table.appendChild(row);
+            }
+            
+            updateDisplayMode();
+        }
+
+        function initTable2() {
+            const table = document.getElementById('guaTable');
+            table.innerHTML = '';
+            
+            // 创建表头行
+            const headerRow = document.createElement('tr');
+            
+            // 添加左上角空白单元格
+            const cornerHeader = document.createElement('th');
+            cornerHeader.className = 'corner-header';
+            cornerHeader.textContent = '上卦/下卦';
+            headerRow.appendChild(cornerHeader);
+            
+            // 添加上卦表头
+            for (let i = 0; i < 8; i++) {
+                const th = document.createElement('th');
+                th.textContent = upperGua[i];
+                headerRow.appendChild(th);
+            }
+            
+            table.appendChild(headerRow);
+            
+            // 创建表格内容
+            let shuffledData = guaData2;
+            let dataIndex = 0;
+            
+            for (let i = 0; i < 8; i++) {
+                const row = document.createElement('tr');
+                
+                // 添加左侧下卦表头
+                const lowerHeader = document.createElement('th');
+                lowerHeader.textContent = lowerGua[i];
+                row.appendChild(lowerHeader);
+                
+                // 添加卦象单元格
+                for (let j = 0; j < 8; j++) {
+                    const cell = document.createElement('td');
+                    cell.className = 'gua-cell';
+                    
+                    const gua = shuffledData[dataIndex++];
+                    
+                    cell.dataset.number = gua.number;
+                    cell.dataset.name = gua.name;
+                    cell.dataset.symbol = gua.symbol;
+                    cell.dataset.fullName = gua.fullName;
+                    cell.dataset.description = gua.description;
+                    cell.dataset.symbolChars = gua.symbolChars;
+                    cell.dataset.upperSymbol = gua.upperSymbol;
+                    cell.dataset.lowerSymbol = gua.lowerSymbol;
+                    cell.dataset.displayMode = currentDisplayMode;
+                    
+                    cell.addEventListener('click', () => handleCellClick(cell, gua));
+                    
+                    row.appendChild(cell);
+                }
+                
+                table.appendChild(row);
+            }
+            
+            updateDisplayMode();
+        }
+
+        // 处理单元格点击事件
+        function handleCellClick(cell, gua) {
+            // 如果点击的是已激活的单元格，则恢复原始显示
+            if (cell === activeCell) {
+                resetCellDisplay(cell);
+                activeCell = null;
+                document.getElementById('detailPanel').classList.add('hidden');
+                return;
+            }
+            
+            // 移除之前激活的单元格样式
+            if (activeCell) {
+                resetCellDisplay(activeCell);
+            }
+            
+            // 设置当前单元格为激活状态
+            activeCell = cell;
+            cell.classList.add('active-cell');
+            
+            // 更新单元格内容为详细信息
+            updateCellToDetailView(cell, gua);
+            
+            // 显示详细信息面板
+            showGuaDetails(gua);
+        }
+
+        // 重置单元格显示为原始模式
+        function resetCellDisplay(cell) {
+            cell.classList.remove('active-cell');
+            const displayMode = cell.dataset.displayMode;
+            
+            if (displayMode === 'number') {
+                cell.textContent = cell.dataset.number;
+            } else if (displayMode === 'name') {
+                cell.textContent = cell.dataset.name;
+            } else if (displayMode === 'symbol') {
+                cell.textContent = cell.dataset.symbol;
+            }
+        }
+
+        // 更新单元格为详细视图
+        function updateCellToDetailView(cell, gua) {
+            cell.innerHTML = `
+                <div class="gua-content">                    
+                    <div class="gua-symbols">
+                        <div>${gua.upperSymbol}</div>
+                        <div>${gua.lowerSymbol}</div>
+                    </div>
+                    <div>
+                        <div class="gua-number">${gua.number}</div>
+                        <div class="gua-name">${gua.name}</div>
+                        <div class="gua-fullname">${gua.fullName}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 随机打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 更新显示模式
+        function updateDisplayMode() {
+            currentDisplayMode = document.querySelector('input[name="displayMode"]:checked').value;
+            const cells = document.querySelectorAll('.gua-cell');
+            
+            cells.forEach(cell => {
+                cell.dataset.displayMode = currentDisplayMode;
+                
+                // 如果不是激活状态，更新显示
+                if (!cell.classList.contains('active-cell')) {
+                    if (currentDisplayMode === 'number') {
+                        cell.textContent = cell.dataset.number;
+                    } else if (currentDisplayMode === 'name') {
+                        cell.textContent = cell.dataset.name;
+                    } else if (currentDisplayMode === 'symbol') {
+                        cell.textContent = cell.dataset.symbol;
+                    }
+                }
+            });
+        }
+
+        // 显示卦象详情
+        function showGuaDetails(gua) {
+            const detailPanel = document.getElementById('detailPanel');
+            const guaImage = document.getElementById('guaImage');
+            const guaTitle = document.getElementById('guaTitle');
+            const guaDescription = document.getElementById('guaDescription');
+            
+            guaImage.innerHTML = `
+                <div class="gua-content">                    
+                    <div class="gua-symbols-large">
+                        <div>${gua.upperSymbol}</div>
+                        <div>${gua.lowerSymbol}</div>
+                    </div>
+                    <div class="gua-symbols-large">
+                        <div class="gua-number">${gua.number}</div>
+                        <div class="gua-fullname">${gua.fullName}</div>
+                    </div>
+                </div>
+            `;
+            
+            guaTitle.textContent = `${gua.fullName} 第${gua.number}卦`;
+            guaDescription.innerHTML = `
+                <p><strong>卦名：</strong>${gua.name}</p>
+                <p><strong>卦象：</strong>${gua.symbol}</p>
+                <p><strong>上卦：</strong>${getGuaNameFromSymbol(gua.upperSymbol)}</p>
+                <p><strong>下卦：</strong>${getGuaNameFromSymbol(gua.lowerSymbol)}</p>
+                <p><strong>释义：</strong>${gua.description}</p>
+            `;
+            
+            detailPanel.classList.remove('hidden');
+        }
+
+        // 根据符号获取卦名
+        function getGuaNameFromSymbol(symbol) {
+            const symbolMap = {
+                "☰": "乾(天)",
+                "☷": "坤(地)",
+                "☵": "坎(水)",
+                "☲": "离(火)",
+                "☳": "震(雷)",
+                "☶": "艮(山)",
+                "☴": "巽(风)",
+                "☱": "兑(泽)"
+            };
+            return symbolMap[symbol] || symbol;
+        }
+
+        // 随机生成一卦
+        function randomGua() {
+            const randomIndex = Math.floor(Math.random() * guaData.length);
+            showGuaDetails(guaData[randomIndex]);
+            
+            // 如果之前有激活的单元格，取消激活
+            if (activeCell) {
+                resetCellDisplay(activeCell);
+                activeCell = null;
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initTable();
+            
+            // 添加显示模式切换事件监听
+            const radioButtons = document.querySelectorAll('input[name="displayMode"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', updateDisplayMode);
+            });
+            
+            // 添加打乱按钮事件监听
+            document.getElementById('shuffleBtn').addEventListener('click', () => {
+                initTable();
+                document.getElementById('detailPanel').classList.add('hidden');
+                activeCell = null;
+            });
+            // 添加打乱按钮事件监听
+            document.getElementById('sortBtn').addEventListener('click', () => {
+                initTable2();
+                document.getElementById('detailPanel').classList.add('hidden');
+                activeCell = null;
+            });
+            
+            // 添加随机按钮事件监听
+            document.getElementById('randomBtn').addEventListener('click', randomGua);
+            
+            // 默认显示第一卦的详情
+            showGuaDetails(guaData[0]);
+        });
+    </script>
+</body>
+</html>
